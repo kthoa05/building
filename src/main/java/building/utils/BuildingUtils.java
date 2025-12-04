@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Map;
 
 public class BuildingUtils {
 
@@ -42,6 +43,26 @@ public class BuildingUtils {
                 return true;
             }
             return false;
+        }
+    }
+
+    public static class TClass {
+        public static <T> T convertToObject(Map<Object, Object> params, String key, Class<T> tClass){
+            Object val = params.getOrDefault(key, null);
+
+            if (val != null){
+                if (tClass.getTypeName().equalsIgnoreCase("java.lang.Integer")){
+                    val = val != "" ? Integer.valueOf(val.toString()) : null;
+                }else if (tClass.getTypeName().equalsIgnoreCase("java.lang.Long")){
+                    val = val != "" ? Long.valueOf(val.toString()) : null;
+                }else if (tClass.getTypeName().equalsIgnoreCase("java.lang.String")){
+                    val = val != "" ? val.toString() : null;
+                } else if (tClass.getTypeName().equalsIgnoreCase("java.lang.Double")){
+                    val = val != "" ? Double.valueOf(val.toString()) : null;
+                }
+                return tClass.cast(val);
+            }
+            return null;
         }
     }
 }

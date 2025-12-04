@@ -1,10 +1,14 @@
 package building.repository.impl;
 
+import building.builder.BuildingSearchBuilder;
 import building.entity.BuildingEntity;
+import lombok.SneakyThrows;
+import lombok.var;
 import org.springframework.stereotype.Repository;
 import building.repository.IBuildingRepository;
 import building.utils.BuildingUtils;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,28 +16,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
 public class BuildingRepository implements IBuildingRepository {
 
-    public StringBuilder joinTable(Map<Object, Object> request, List<String> typeCode) {
+    public StringBuilder joinTable(BuildingSearchBuilder request) {
         StringBuilder join = new StringBuilder();
         //todo: rent area, staff id
-        String rentAreaTo = (String) request.get("rentAreaTo");
-        String rentAreaFrom = (String) request.get("rentAreaFrom");
-        if (rentAreaFrom != null || rentAreaTo != null) {
+        Double rentAreaTo = request.getRentAreaTo();
+        Double rentAreaFrom = request.getRentAreaFrom();
+        if (rentAreaTo != null || rentAreaFrom != null) {
             join.append(" INNER JOIN RENTAREA RA ON B.ID = RA.BUILDINGID");
         }
 
-        String staffId = (String) request.get("staffId");
+        Integer staffId = request.getStaffId();
         if (staffId != null) {
             join.append(" INNER JOIN ASSIGNMENTBUILDING AB ON B.ID = AB.BUILDINGID ");
             join.append(" INNER JOIN USER U ON AB.STAFFID = U.ID ");
-            join.append(" INNER JOIN ASSIGNMENTCUSTOMER AMC ON ACM.STAFFID = U.ID ");
+            join.append(" INNER JOIN ASSIGNMENTCUSTOMER AMC ON AMC.STAFFID = U.ID ");
         }
 
-        //type
+        List<String> typeCode = request.getTypeCode();
         if (typeCode != null && typeCode.size() > 0) {
             join.append(" INNER JOIN BUILDINGRENTTYPE BRT ON BRT.BUILDINGID = B.ID ");
             join.append(" INNER JOIN RENTTYPE RT ON BRT.RENTTYPEID = RT.ID ");
@@ -42,64 +47,76 @@ public class BuildingRepository implements IBuildingRepository {
     }
 
 
-    public StringBuilder queryNormal(Map<Object, Object> request) {
+    public StringBuilder queryNormal(BuildingSearchBuilder request) {
         StringBuilder sql = new StringBuilder();
-        for (Map.Entry<Object, Object> res : request.entrySet()) {
-            String key = (String) res.getKey();
-            String val = (String) res.getValue();
-            if (!(key.equalsIgnoreCase("districtId") || key.equalsIgnoreCase("typeCode") || key.startsWith("rentArea") || key.startsWith("rentPrice") || key.equalsIgnoreCase("staffId"))) {
-                boolean isNumber = BuildingUtils.Numberutils.isNumber(key);
-                if (isNumber) {
-                    sql.append(" AND b." + key + " = " + val + " ");
-                } else {
-                    sql.append(" AND B." + key + " LIKE '%" + val + "%' ");
+        Class builder = BuildingSearchBuilder.class;
+        Field[] fields = builder.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            String key = field.getName();
+            Object fieldValue = null;
+            try {
+                fieldValue = field.get(request);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            String val = fieldValue != null ? fieldValue.toString() : null;
+            if (val != null) {
+                if (!(key.equalsIgnoreCase("districtId") || key.equalsIgnoreCase("typeCode") || key.startsWith("rentArea") || key.startsWith("rentPrice") || key.equalsIgnoreCase("staffId"))) {
+                    boolean isNumber = BuildingUtils.Numberutils.isNumber(val);
+                    if (isNumber) {
+                        sql.append(" AND b." + key + " = " + val + " ");
+                    } else {
+                        sql.append(" AND B." + key + " LIKE '%" + val + "%' ");
+                    }
                 }
             }
         }
         return sql;
     }
 
-    public StringBuilder querySpecial(Map<Object, Object> request, List<String> typeCode) {
+    public StringBuilder querySpecial(BuildingSearchBuilder request) {
         StringBuilder sql = new StringBuilder();
         /**
          rent area
          */
-        double rentAreaTo = BuildingUtils.ParseUtils.convertStringToNumber((String) request.get("rentAreaTo")).doubleValue();
-        double rentAreaFrom = BuildingUtils.ParseUtils.convertStringToNumber((String) request.get("rentAreaFrom")).doubleValue();
+        Double rentAreaTo = request.getRentAreaTo();
+        Double rentAreaFrom = request.getRentAreaFrom();
 
-        if (rentAreaFrom != 0) {
+        if (rentAreaFrom != null) {
             sql.append(" AND RA.VALUE >= " + rentAreaFrom);
         }
 
-        if (rentAreaTo != 0) {
+        if (rentAreaTo != null) {
             sql.append(" AND RA.VALUE <= " + rentAreaTo);
         }
 
         /**
          rent price
          */
-        double rentPriceTo = BuildingUtils.ParseUtils.convertStringToNumber((String) request.get("rentPriceTo")).doubleValue();
-        double rentPriceFrom = BuildingUtils.ParseUtils.convertStringToNumber((String) request.get("rentPriceFrom")).doubleValue();
+        Double rentPriceTo = request.getRentPriceTo();
+        Double rentPriceFrom = request.getRentPriceFrom();
 
-        if (rentPriceFrom != 0) {
+        if (rentPriceFrom != null) {
             sql.append(" AND RENTPRICE >= " + rentPriceFrom);
         }
 
-        if (rentPriceTo != 0) {
+        if (rentPriceTo != null) {
             sql.append(" AND RENTPRICE <= " + rentPriceTo);
         }
 
         /**
          staff id
          */
-        String staffId = (String) request.get("staffId");
+        Integer staffId = request.getStaffId();
         if (staffId != null) {
-            sql.append(" AND ACM.STAFFID = " + staffId);
+            sql.append(" AND AMC.STAFFID = " + staffId);
         }
 
         /**
          type code
          */
+        List<String> typeCode = request.getTypeCode();
         if (typeCode != null && typeCode.size() > 0) {
             sql.append(" AND RT.CODE IN (");
             sql.append(typeCode.stream().map(code -> "'" + code + "'").collect(Collectors.joining(",")));
@@ -108,13 +125,13 @@ public class BuildingRepository implements IBuildingRepository {
         return sql;
     }
 
-    public List<BuildingEntity> getAllBuilding(Map<Object, Object> request, List<String> typeCode) {
+    public List<BuildingEntity> getAllBuilding(BuildingSearchBuilder request) {
         List<BuildingEntity> result = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM BUILDING B ");
-        sql.append(joinTable(request, typeCode));
+        sql.append(joinTable(request));
         sql.append(" WHERE 1 = 1 ");
         sql.append(queryNormal(request));
-        sql.append(querySpecial(request, typeCode));
+        sql.append(querySpecial(request));
         System.out.println("sql: " + sql);
 
         try (Connection conn = BuildingUtils.ConnectDB.getConnect(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {

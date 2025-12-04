@@ -1,6 +1,8 @@
 package building.service.impl;
 
+import building.builder.BuildingSearchBuilder;
 import building.converter.BuildingDTOConverter;
+import building.converter.BuildingSearchBuilderConverter;
 import building.dto.BuildingDTO;
 import building.entity.BuildingEntity;
 import building.entity.DistrictEntity;
@@ -27,10 +29,21 @@ public class BuildingService implements IBuildingService {
     @Autowired
     BuildingDTOConverter buildingDTOConverter;
 
+    @Autowired
+    BuildingSearchBuilderConverter buildingSearchBuilderConverter;
+
     @Override
     public List<BuildingDTO> getAllBuilding(Map<Object, Object> request, List<String> typeCode) {
+//        List<BuildingDTO> result = new ArrayList<>();
+//        List<BuildingEntity> response = buildingRepository.getAllBuilding(request, typeCode);
+//        response.forEach(res -> {
+//            result.add(buildingDTOConverter.convertToBuildingDTO(res));
+//        });
+//        return result;
+
         List<BuildingDTO> result = new ArrayList<>();
-        List<BuildingEntity> response = buildingRepository.getAllBuilding(request, typeCode);
+        BuildingSearchBuilder builderConverter = buildingSearchBuilderConverter.convertToBuildingSearchBuilder(request, typeCode);
+        List<BuildingEntity> response = buildingRepository.getAllBuilding(builderConverter);
         response.forEach(res -> {
             result.add(buildingDTOConverter.convertToBuildingDTO(res));
         });
