@@ -151,7 +151,7 @@ public class BuildingRepository implements IBuildingRepository {
                  */
                 BuildingEntity building = new BuildingEntity();
                 building.setId(rs.getInt("ID"));
-                building.setNameBuilding(rs.getString("b.NAME"));
+                building.setName(rs.getString("b.NAME"));
                 building.setWard(rs.getString("b.WARD"));
                 building.setStreet(rs.getString("b.STREET"));
                 building.setNumberOfBasement(rs.getInt("b.NUMBEROFBASEMENT"));
@@ -160,7 +160,7 @@ public class BuildingRepository implements IBuildingRepository {
                 building.setFloorArea(rs.getInt("b.FLOORAREA"));
                 building.setBrokeageFee(rs.getDouble("b.BROKERAGEFEE"));
                 building.setRentPrice(rs.getDouble("b.RENTPRICE"));
-                building.setDistrictId(rs.getInt("b.DISTRICTID"));
+//                building.setDistrict(rs.getInt("b.DISTRICTID"));
                 building.setServiceFee(rs.getString("b.SERVICEFEE"));
 
                 result.add(building);

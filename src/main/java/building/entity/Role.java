@@ -11,15 +11,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "District")
-public class DistrictEntity {
+@Table(name = "Role")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long districtId;
+    private int id;
     @Column(name = "name")
     private String name;
     @Column(name = "code")
     private String code;
-    @OneToMany(mappedBy = "district", fetch = FetchType.LAZY)
-    private List<BuildingEntity> buildingEntityList;
+
+    //thu cong
+    @OneToMany(mappedBy = "role")
+    private List<UserRole> role;
 }

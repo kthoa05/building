@@ -3,31 +3,47 @@ package building.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "Building")
 public class BuildingEntity {
-    //request
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String nameBuilding;
+    @Column(name="nameBuilding")
+    private String name;
+    @Column(name = "floorArea")
     private int floorArea;
-    private int districtId;
+    @ManyToOne
+    @JoinColumn(name = "district")
+    private DistrictEntity district;
+    @OneToMany(mappedBy = "rentArea", fetch = FetchType.LAZY)
+    private List<RentAreaEntity> rentArea;
+    @Column(name = "ward")
     private String ward;
+    @Column(name = "street")
     private String street;
+    @Column(name = "numberOfBasement")
     private int numberOfBasement;
+    @Column(name = "position")
     private String position;
+    @Column(name = "level")
     private String level;
-    private double rentAreaTo;
-    private double rentAreaFrom;
-    private double rentPriceTo;
-    private double rentPriceFrom;
+    @Column(name = "managerName")
     private String managerName;
+    @Column(name = "managerPhoneNumber")
     private String managerPhoneNumber;
-    private int staffId;
-    private int userId;
+    @Column(name = "rentPrice")
     private double rentPrice;
+    @Column(name = "brokeageFee")
     private double brokeageFee;
+    @Column(name = "emptyArea")
     private double emptyArea;
+    @Column(name = "serviceFee")
     private String serviceFee;
 }

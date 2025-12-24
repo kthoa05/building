@@ -10,15 +10,17 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "RentArea")
-public class RentAreaEntity {
+@Table(name = "UserRole")
+public class UserRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @ManyToOne
-    @JoinColumn(name = "rentArea")
-    private BuildingEntity building;
-    @Column(name = "value")
-    private int value;
+    private int id;
 
+    //thu cong
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private User user;
+    @ManyToOne
+    @JoinColumn(name = "role")
+    private Role role;
 }
