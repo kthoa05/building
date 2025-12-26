@@ -16,7 +16,7 @@ public class RentAreaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToOne
-    @JoinColumn(name = "rentArea")
+    @JoinColumn(name = "building")
     private BuildingEntity building;
     @Column(name = "value")
     private int value;

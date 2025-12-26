@@ -22,6 +22,13 @@ public class Role {
     private String code;
 
     //thu cong
-    @OneToMany(mappedBy = "role")
-    private List<UserRole> role;
+//    @OneToMany(mappedBy = "role")
+//    private List<UserRole> role;
+
+    /**
+     tu dong
+     */
+    @ManyToMany(mappedBy = "roles" , fetch = FetchType.LAZY)
+    private List<User> users;
+
 }

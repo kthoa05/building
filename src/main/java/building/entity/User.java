@@ -33,7 +33,15 @@ public class User {
     private LocalDateTime createDate;
 
     //thu cong
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserRole> user;
+//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+//    private List<UserRole> user;
 
+    /**
+     tu dong, xai @ManyToMany
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "UserRole", /** tên table join giữa 2 bảng */
+                joinColumns = @JoinColumn(name = "user_id"), /** khoá ngoại trỏ đến class hiện tại (User) */
+                inverseJoinColumns = @JoinColumn(name = "role_id")) /** khoá ngoại trỏ đến class còn lại (Role) */
+    private List<Role> roles;
 }

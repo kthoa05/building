@@ -22,7 +22,7 @@ public class BuildingEntity {
     @ManyToOne
     @JoinColumn(name = "district")
     private DistrictEntity district;
-    @OneToMany(mappedBy = "rentArea", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private List<RentAreaEntity> rentArea;
     @Column(name = "ward")
     private String ward;
