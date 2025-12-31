@@ -5,6 +5,7 @@ import building.dto.BuildingDTO;
 import building.entity.BuildingEntity;
 import building.entity.DistrictEntity;
 import building.entity.RentAreaEntity;
+import building.repository.IBuildingRepositorySpringJPA;
 import building.repository.IRentAreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,11 +26,15 @@ public class BuildingService implements IBuildingService {
     IBuildingRepository buildingRepository;
 
     @Autowired
+    IBuildingRepositorySpringJPA repositorySpringJPA;
+
+    @Autowired
     BuildingDTOConverter buildingDTOConverter;
 
     @Override
     public List<BuildingDTO> getAllBuilding(Map<Object, Object> request, List<String> typeCode) {
         List<BuildingDTO> result = new ArrayList<>();
+//        repositorySpringJPA.findA
         List<BuildingEntity> response = buildingRepository.getAllBuilding(request, typeCode);
         response.forEach(res -> {
             result.add(buildingDTOConverter.convertToBuildingDTO(res));
