@@ -2,8 +2,6 @@ package building.repository.impl;
 
 import building.builder.BuildingSearchBuilder;
 import building.entity.BuildingEntity;
-import lombok.SneakyThrows;
-import lombok.var;
 import org.springframework.stereotype.Repository;
 import building.repository.IBuildingRepository;
 import building.utils.BuildingUtils;
@@ -15,8 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
@@ -137,18 +133,6 @@ public class BuildingRepository implements IBuildingRepository {
         try (Connection conn = BuildingUtils.ConnectDB.getConnect(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                /**
-                 private String nameBuilding;
-                 private String address;
-                 private int numberOfBasement;
-                 private String managerName;
-                 private String sdt;
-                 private double floorArea;
-                 private double emptyArea;
-                 private double rentPrice;
-                 private double brokeageFee;
-                 private double feeMG;
-                 */
                 BuildingEntity building = new BuildingEntity();
                 building.setId(rs.getInt("ID"));
                 building.setNameBuilding(rs.getString("b.NAME"));
